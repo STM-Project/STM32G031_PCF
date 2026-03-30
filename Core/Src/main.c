@@ -107,19 +107,123 @@ static void FUNC_TunningFreq(int k){ switch(k){
 	RADIO_DispFreq();
 }
 
+char tempBuff[40];
+char tempBuff2[40];
+
+#include <stdint.h>
+#include <math.h>
+const double round_nums[8] =
+{ 0.5, 0.05, 0.005, 0.0005, 0.00005,0.000005,0.0000005,0.00000005};
+void float2stri(char *buffer, float value, unsigned int dec_digits)
+{
+	int idx;
+	int64_t dbl_int, dbl_frac;
+	int64_t mult = 1;
+	char *output = buffer;
+	char tbfr[40];
+
+	if (isfinite(value))
+	{
+		if ((value <= -99999999999999) || (value >= 99999999999999))
+		{
+			*output++ = '-';
+			*output++ = '-';
+			*output++ = '-';
+			*output++ = '-';
+			*output++ = '-';
+		}
+		else
+		{
+			if (value < 0.0)
+			{
+				*output++ = '-';
+				value *= -1.0;
+			}
+
+			if (dec_digits <8)
+			{
+				value += round_nums[dec_digits];
+				for (idx = 0; idx < dec_digits; idx++)
+					mult *= 10;
+			}
+			else
+			{
+				dec_digits = 7;
+				value += round_nums[7];
+				mult = 10000000;
+			}
+
+			dbl_int = (int64_t) value;
+			dbl_frac = (int64_t) ((value - (float) dbl_int) * (float) mult);
+
+			idx = 0;
+			while (dbl_int != 0)
+			{
+				tbfr[idx++] = '0' + (dbl_int % 10);
+				dbl_int /= 10;
+			}
+
+			if (idx == 0)
+				*output++ = '0';
+			else
+			{
+				while (idx > 0)
+				{
+					*output++ = tbfr[idx - 1];
+					idx--;
+				}
+			}
+
+			if (dec_digits > 0)
+			{
+				*output++ = '.';
+
+				idx = 0;
+				while (dbl_frac != 0)
+				{
+					tbfr[idx++] = '0' + (dbl_frac % 10);
+					dbl_frac /= 10;
+				}
+				while (idx < dec_digits)
+					tbfr[idx++] = '0';
+
+				if (idx == 0)
+					*output++ = '0';
+				else
+				{
+					while (idx > 0)
+					{
+						*output++ = tbfr[idx - 1];
+						idx--;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		*output++ = '-';
+		*output++ = '-';
+		*output++ = '-';
+		*output++ = '-';
+		*output++ = '-';
+	}
+	*output = 0;
+}
+
 static void VisualParam_LCD_Reset(void)
 {
-	Test.Radio[0].freq= 101.6;		strcpy(Test.Radio[0].radioName,"Radio Krak"ó"w");
+	Test.Radio[0].freq= 101.6;		strcpy(Test.Radio[0].radioName,"Radio Krakow");
 	Test.Radio[1].freq=  87.8;		strcpy(Test.Radio[1].radioName,"RMF Classic");
 	Test.Radio[2].freq=  89.4;		strcpy(Test.Radio[2].radioName,"Jedynka");
 	Test.Radio[3].freq=  88.8;		strcpy(Test.Radio[3].radioName,"Eska 2");
-	Test.Radio[4].freq=  99.4;		strcpy(Test.Radio[4].radioName,"Tr"ó"jka");
+	Test.Radio[4].freq=  99.4;		strcpy(Test.Radio[4].radioName,"Trojka");
 	Test.Radio[5].freq=  96.0;		strcpy(Test.Radio[5].radioName,"RMF FM");
 	Test.Radio[6].freq= 104.1;		strcpy(Test.Radio[6].radioName,"Radio Zet");
 	Test.Radio[7].freq=  96.7;		strcpy(Test.Radio[7].radioName,"RMF MAXXX");
 	Test.Radio[8].freq= 106.1;		strcpy(Test.Radio[8].radioName,"Radio Plus");
 	Test.Radio[9].freq=  90.6;		strcpy(Test.Radio[9].radioName,"Radio Maryja");		//PCF8575_SetVAl( (0x12<<8)|0xBF, (0x2<<8)|0x1E );  //00000010  00011110 Radio Maryja
-	Test.Radio[10].freq= 92.5;		strcpy(Test.Radio[10].radioName,"Z"ł"ote przeboje");
+	Test.Radio[10].freq= 92.5;		strcpy(Test.Radio[10].radioName,"Zlote przeboje");
 	Test.Radio[11].freq= 102.4;	strcpy(Test.Radio[11].radioName,"Radio Pogoda");
 	Test.Radio[12].freq= 103.0;	strcpy(Test.Radio[12].radioName,"Radio Katowice");
 	Test.Radio[13].freq= 102.9;	strcpy(Test.Radio[13].radioName,"TOK FM");
@@ -128,7 +232,7 @@ static void VisualParam_LCD_Reset(void)
 	Test.Radio[16].freq= 104.9;	strcpy(Test.Radio[16].radioName,"Eska Rock");
 	Test.Radio[17].freq= 107.0;	strcpy(Test.Radio[17].radioName,"VOX FM");
 	Test.Radio[18].freq= 101.0;	strcpy(Test.Radio[18].radioName,"AntyRadio");
-	Test.Radio[19].freq= 102.0;	strcpy(Test.Radio[19].radioName,"Dw"ó"jka");
+	Test.Radio[19].freq= 102.0;	strcpy(Test.Radio[19].radioName,"Dwojka");
 	Test.Radio[20].freq=  97.2;	strcpy(Test.Radio[20].radioName,"Polskie Radio 24");
 	Test.Radio[21].freq= 103.8;	strcpy(Test.Radio[21].radioName,"Rock Radio");
 	Test.Radio[22].freq=  95.2;	strcpy(Test.Radio[22].radioName,"Radio Wnet");
@@ -308,17 +412,20 @@ int main(void)
 
   // Write data to local screenbuffer
   ssd1306_SetCursor(0, 0);
-  ssd1306_WriteString("ssd1306", Font_11x18, White);
+ // ssd1306_InvertColors();
+  ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, White);
 
   ssd1306_SetCursor(0, 36);
-  ssd1306_WriteString("4ilo", Font_11x18, White);
+  //float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+  ssd1306_WriteString("113.56", Font_16x26, White);
 
   // Draw rectangle on screen
-  for (uint8_t i=0; i<28; i++) {
-      for (uint8_t j=0; j<64; j++) {
-          ssd1306_DrawPixel(100+i, 0+j, White);
-      }
-  }
+//  for (uint8_t i=0; i<28; i++) {
+//      for (uint8_t j=0; j<64; j++) {
+//          ssd1306_DrawPixel(100+i, 0+j, White);
+//      }
+//  }
+
 
   // Copy all data from local screenbuffer to the screen
   ssd1306_UpdateScreen(&hi2c2);
