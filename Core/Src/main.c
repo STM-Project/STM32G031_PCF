@@ -199,15 +199,145 @@ void float2stri(char *buffer, float value, unsigned int dec_digits)
 	*output = 0;
 }
 
+#define SIZE_STRBUFF		50
+typedef enum{
+	Sign_plusMinus,
+	Sign_minus,
+	Sign_plus,
+	Sign_none
+}Int2Str_plusminus;
+
+typedef enum{
+	None,
+	Space = ' ',
+	Tabu = '	',
+	Zero = '0'
+}Int2Str_freeSign;
+static int idx=0;
+static char strBuff[SIZE_STRBUFF]={0};
+char* Int2Str(int value, char freeSign, int maxDigits, int plusMinus)
+{
+	int i=10,k=1,j,idx_copy;
+	int absolutValue;
+	char sign;
+
+	idx_copy=idx;
+
+	int _IsSign(void)
+	{
+		if(value<0)
+		{
+			switch(plusMinus)
+			{
+			case Sign_plusMinus:
+			case Sign_minus:
+				return 1;
+			}
+		}
+		else if(value>0)
+		{
+			switch(plusMinus)
+			{
+			case Sign_plusMinus:
+			case Sign_plus:
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	if(value<0){
+		absolutValue=-value;
+		sign='-';
+	}
+	else{
+		absolutValue=value;
+		sign='+';
+	}
+
+	while(1)
+	{
+		if(absolutValue<i)
+		{
+		   if(k<maxDigits)
+			{
+		   	if(idx+maxDigits >= SIZE_STRBUFF){
+		   		idx=0;
+		   		idx_copy=0;
+		   	}
+
+		   	if(Sign_none!=plusMinus)
+		   	{
+			   	if(Space==freeSign)
+			   		strBuff[idx++]=Space;
+			   	else
+			   	{
+			   		if(1==_IsSign())
+			   			strBuff[idx++]=sign;
+			   		else
+			   			strBuff[idx++]=Space;
+			   	}
+		   	}
+
+		   	if(None!=freeSign)
+		   	{
+			   	j=maxDigits-k;
+			   	memset(&strBuff[idx],freeSign,j);
+			   	idx+=j;
+		   	}
+
+		   	if(Space==freeSign)
+		   	{
+		   		if(1==_IsSign())
+		   			strBuff[idx-1]=sign;
+		   	}
+			}
+		   else
+		   {
+		   	if(idx+k >= SIZE_STRBUFF){
+		   		idx=0;
+		   		idx_copy=0;
+		   	}
+
+		   	if(Sign_none!=plusMinus)
+		   	{
+		   		if(1==_IsSign())
+		   			strBuff[idx++]=sign;
+		   		else
+		   			strBuff[idx++]=Space;
+		   	}
+		   }
+			itoa(absolutValue,&strBuff[idx],10);
+			idx+=k;
+			break;
+		}
+		else
+		{
+			i*=10;
+			k++;
+		}
+	}
+	strBuff[idx++]=0;
+	return strBuff+idx_copy;
+}
+
 static void RADIO_DispFreq(void){
 	RADIO_CalcFreqDiv(Test.selRadio);
 	if(RADIO_SetFreq(Test.selRadio));
 
-	ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
+	/*ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2);*/ ssd1306_SetCursor(0, 0);
 	ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, White);
 	ssd1306_SetCursor(0, 36);
-	float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+	tempBuff[0]=' ';
+	if(Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs  <  100.00)
+		float2stri(&tempBuff[1],Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+	else
+		float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
 	ssd1306_WriteString(tempBuff, Font_16x26, White);
+
+	ssd1306_SetCursor(100, 40);
+	ssd1306_WriteString("MHz", Font_11x18, White);
+
 	ssd1306_UpdateScreen(&hi2c2);
 }
 
@@ -224,30 +354,30 @@ static void FUNC_TunningFreq(int k){ switch(k){
 
 static void VisualParam_LCD_Reset(void)
 {
-	Test.Radio[0].freq= 101.6;		strcpy(Test.Radio[0].radioName,"Radio Krakow");
-	Test.Radio[1].freq=  87.8;		strcpy(Test.Radio[1].radioName,"RMF Classic");
-	Test.Radio[2].freq=  89.4;		strcpy(Test.Radio[2].radioName,"Jedynka");
-	Test.Radio[3].freq=  88.8;		strcpy(Test.Radio[3].radioName,"Eska 2");
-	Test.Radio[4].freq=  99.4;		strcpy(Test.Radio[4].radioName,"Trojka");
-	Test.Radio[5].freq=  96.0;		strcpy(Test.Radio[5].radioName,"RMF FM");
-	Test.Radio[6].freq= 104.1;		strcpy(Test.Radio[6].radioName,"Radio Zet");
-	Test.Radio[7].freq=  96.7;		strcpy(Test.Radio[7].radioName,"RMF MAXXX");
-	Test.Radio[8].freq= 106.1;		strcpy(Test.Radio[8].radioName,"Radio Plus");
-	Test.Radio[9].freq=  90.6;		strcpy(Test.Radio[9].radioName,"Radio Maryja");		//PCF8575_SetVAl( (0x12<<8)|0xBF, (0x2<<8)|0x1E );  //00000010  00011110 Radio Maryja
-	Test.Radio[10].freq= 92.5;		strcpy(Test.Radio[10].radioName,"Zlote przeboje");
-	Test.Radio[11].freq= 102.4;	strcpy(Test.Radio[11].radioName,"Radio Pogoda");
-	Test.Radio[12].freq= 103.0;	strcpy(Test.Radio[12].radioName,"Radio Katowice");
-	Test.Radio[13].freq= 102.9;	strcpy(Test.Radio[13].radioName,"TOK FM");
-	Test.Radio[14].freq=  97.7;	strcpy(Test.Radio[14].radioName,"Eska");
-	Test.Radio[15].freq=  93.7;	strcpy(Test.Radio[15].radioName,"Chillizet");
-	Test.Radio[16].freq= 104.9;	strcpy(Test.Radio[16].radioName,"Eska Rock");
-	Test.Radio[17].freq= 107.0;	strcpy(Test.Radio[17].radioName,"VOX FM");
-	Test.Radio[18].freq= 101.0;	strcpy(Test.Radio[18].radioName,"AntyRadio");
-	Test.Radio[19].freq= 102.0;	strcpy(Test.Radio[19].radioName,"Dwojka");
-	Test.Radio[20].freq=  97.2;	strcpy(Test.Radio[20].radioName,"Polskie Radio 24");
-	Test.Radio[21].freq= 103.8;	strcpy(Test.Radio[21].radioName,"Rock Radio");
-	Test.Radio[22].freq=  95.2;	strcpy(Test.Radio[22].radioName,"Radio Wnet");
-	Test.Radio[23].freq= 100.5;	strcpy(Test.Radio[23].radioName,"Radio Famka");
+	Test.Radio[0].freq= 101.6;		strcpy(Test.Radio[0].radioName,"Radio Krakow    ");
+	Test.Radio[1].freq=  87.8;		strcpy(Test.Radio[1].radioName,"RMF Classic     ");
+	Test.Radio[2].freq=  89.4;		strcpy(Test.Radio[2].radioName,"Jedynka         ");
+	Test.Radio[3].freq=  88.8;		strcpy(Test.Radio[3].radioName,"Eska 2          ");
+	Test.Radio[4].freq=  99.4;		strcpy(Test.Radio[4].radioName,"Trojka          ");
+	Test.Radio[5].freq=  96.0;		strcpy(Test.Radio[5].radioName,"RMF FM          ");
+	Test.Radio[6].freq= 104.1;		strcpy(Test.Radio[6].radioName,"Radio Zet       ");
+	Test.Radio[7].freq=  96.7;		strcpy(Test.Radio[7].radioName,"RMF MAXXX       ");
+	Test.Radio[8].freq= 106.1;		strcpy(Test.Radio[8].radioName,"Radio Plus      ");
+	Test.Radio[9].freq=  90.6;		strcpy(Test.Radio[9].radioName,"Radio Maryja    ");		//PCF8575_SetVAl( (0x12<<8)|0xBF, (0x2<<8)|0x1E );  //00000010  00011110 Radio Maryja
+	Test.Radio[10].freq= 92.5;	   strcpy(Test.Radio[10].radioName,"Zlote przeboje  ");
+	Test.Radio[11].freq= 102.4;	   strcpy(Test.Radio[11].radioName,"Radio Pogoda    ");
+	Test.Radio[12].freq= 103.0;	   strcpy(Test.Radio[12].radioName,"Radio Katowice  ");
+	Test.Radio[13].freq= 102.9;	   strcpy(Test.Radio[13].radioName,"TOK FM          ");
+	Test.Radio[14].freq=  97.7;	   strcpy(Test.Radio[14].radioName,"Eska            ");
+	Test.Radio[15].freq=  93.7;	   strcpy(Test.Radio[15].radioName,"Chillizet       ");
+	Test.Radio[16].freq= 104.9;	   strcpy(Test.Radio[16].radioName,"Eska Rock       ");
+	Test.Radio[17].freq= 107.0;	   strcpy(Test.Radio[17].radioName,"VOX FM          ");
+	Test.Radio[18].freq= 101.0;	   strcpy(Test.Radio[18].radioName,"AntyRadio       ");
+	Test.Radio[19].freq= 102.0;	   strcpy(Test.Radio[19].radioName,"Dwojka          ");
+	Test.Radio[20].freq=  97.2;	   strcpy(Test.Radio[20].radioName,"Polskie Radio 24");
+	Test.Radio[21].freq= 103.8;	   strcpy(Test.Radio[21].radioName,"Rock Radio      ");
+	Test.Radio[22].freq=  95.2;	   strcpy(Test.Radio[22].radioName,"Radio Wnet      ");
+	Test.Radio[23].freq= 100.5;	   strcpy(Test.Radio[23].radioName,"Radio Famka     ");
 
 	LOOP_FOR(i,MAX_RADIO_CHANNEL){	Test.pName[i]		   = Test.Radio[i].radioName;
 									Test.Radio[i].freqStep = (0x12<<8)|0xBF;
@@ -421,6 +551,10 @@ int main(void)
   ssd1306_SetCursor(0, 36);
   float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
   ssd1306_WriteString(tempBuff, Font_16x26, White);
+
+	ssd1306_SetCursor(100, 40);
+	ssd1306_WriteString("MHz", Font_11x18, White);
+
   ssd1306_UpdateScreen(&hi2c2);
 
 
@@ -449,6 +583,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
 
 //	  HAL_Delay(1000);
