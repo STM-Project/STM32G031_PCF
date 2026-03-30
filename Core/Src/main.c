@@ -95,18 +95,6 @@ static void RADIO_CalcFreqDiv(int nr){
 /*	Test.Radio[i].freq 	  = INTER_F1 + DIV_FREQ + DIV_ACT*STEP_FREQ*((Test.Radio[i].freqDiv+1)/(Test.Radio[i].freqStep+1)); */
 }
 
-static void RADIO_DispFreq(void){
-	RADIO_CalcFreqDiv(Test.selRadio);
-	if(RADIO_SetFreq(Test.selRadio));
-}
-
-static void FUNC_TunningFreq(int k){ switch(k){
-  case -1: return;
-  case  0: INCR( Test.Radio[Test.selRadio].freqOffs, 0.01, 1.00 ); break;
-  case  1: DECR( Test.Radio[Test.selRadio].freqOffs, 0.01,-1.00 ); break; }
-	RADIO_DispFreq();
-}
-
 char tempBuff[40];
 char tempBuff2[40];
 
@@ -210,6 +198,29 @@ void float2stri(char *buffer, float value, unsigned int dec_digits)
 	}
 	*output = 0;
 }
+
+static void RADIO_DispFreq(void){
+	RADIO_CalcFreqDiv(Test.selRadio);
+	if(RADIO_SetFreq(Test.selRadio));
+
+	ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, White);
+	ssd1306_SetCursor(0, 36);
+	float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+	ssd1306_WriteString(tempBuff, Font_16x26, White);
+	ssd1306_UpdateScreen(&hi2c2);
+}
+
+static void FUNC_TunningFreq(int k){ switch(k){
+  case -1: return;
+  case  0: INCR( Test.Radio[Test.selRadio].freqOffs, 0.01, 1.00 ); break;
+  case  1: DECR( Test.Radio[Test.selRadio].freqOffs, 0.01,-1.00 ); break; }
+	RADIO_DispFreq();
+}
+
+
+
+
 
 static void VisualParam_LCD_Reset(void)
 {
@@ -391,7 +402,7 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   VisualParam_LCD_Reset();
-  //MX_GPIO_ChangeConfigSWDpin(6000);
+  MX_GPIO_ChangeConfigSWDpin(6000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -399,27 +410,28 @@ int main(void)
 
   // Init lcd using one of the stm32HAL i2c typedefs
 
-  HAL_Delay(2000);
+  //HAL_Delay(2000);
 
 
 
-  ssd1306_SetDevAddr(0x78); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;		ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
+  ssd1306_SetDevAddr(0x7A); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;
  // ssd1306_InvertColors();
+  ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
   ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, White);
   ssd1306_SetCursor(0, 36);
   float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
-  ssd1306_WriteString("113.56", Font_16x26, White);
+  ssd1306_WriteString(tempBuff, Font_16x26, White);
   ssd1306_UpdateScreen(&hi2c2);
 
 
-  Test.selRadio++;
-  ssd1306_SetDevAddr(0x7A); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;		ssd1306_Fill(White); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
- // ssd1306_InvertColors();
-  ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, Black);
-  ssd1306_SetCursor(0, 36);
-  float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
-  ssd1306_WriteString("113.56", Font_16x26, Black);
-  ssd1306_UpdateScreen(&hi2c2);
+//  Test.selRadio++;
+//  ssd1306_SetDevAddr(0x78); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;		ssd1306_Fill(White); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
+// // ssd1306_InvertColors();
+//  ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, Black);
+//  ssd1306_SetCursor(0, 36);
+//  float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+//  ssd1306_WriteString(tempBuff, Font_16x26, Black);
+//  ssd1306_UpdateScreen(&hi2c2);
 
 
 
