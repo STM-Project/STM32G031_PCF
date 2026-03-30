@@ -1,9 +1,10 @@
 ../Core/Src/ssd1306.c:15:16:ssd1306_WriteCommand	1
+../Core/Src/ssd1306.c:83:6:ssd1306_SetDevAddr	1
+../Core/Src/ssd1306.c:91:6:ssd1306_Fill	2
+../Core/Src/ssd1306.c:105:6:ssd1306_UpdateScreen	2
 ../Core/Src/ssd1306.c:24:9:ssd1306_Init	2
-../Core/Src/ssd1306.c:86:6:ssd1306_Fill	3
-../Core/Src/ssd1306.c:100:6:ssd1306_UpdateScreen	2
-../Core/Src/ssd1306.c:119:6:ssd1306_DrawPixel	5
-../Core/Src/ssd1306.c:151:6:ssd1306_WriteChar	6
-../Core/Src/ssd1306.c:190:6:ssd1306_WriteString	3
-../Core/Src/ssd1306.c:212:6:ssd1306_InvertColors	1
-../Core/Src/ssd1306.c:220:6:ssd1306_SetCursor	1
+../Core/Src/ssd1306.c:124:6:ssd1306_DrawPixel	6
+../Core/Src/ssd1306.c:156:6:ssd1306_WriteChar	6
+../Core/Src/ssd1306.c:195:6:ssd1306_WriteString	3
+../Core/Src/ssd1306.c:217:6:ssd1306_InvertColors	1
+../Core/Src/ssd1306.c:225:6:ssd1306_SetCursor	1

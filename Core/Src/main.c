@@ -400,24 +400,28 @@ int main(void)
   // Init lcd using one of the stm32HAL i2c typedefs
 
   HAL_Delay(2000);
-  if (ssd1306_Init(&hi2c2) != 0) {
-    Error_Handler();
-  }
-  HAL_Delay(1000);
 
-  ssd1306_Fill(Black);
-  ssd1306_UpdateScreen(&hi2c2);
 
-  HAL_Delay(1000);
 
-  // Write data to local screenbuffer
-  ssd1306_SetCursor(0, 0);
+  ssd1306_SetDevAddr(0x78); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;		ssd1306_Fill(Black); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
  // ssd1306_InvertColors();
   ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, White);
-
   ssd1306_SetCursor(0, 36);
-  //float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+  float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
   ssd1306_WriteString("113.56", Font_16x26, White);
+  ssd1306_UpdateScreen(&hi2c2);
+
+
+  Test.selRadio++;
+  ssd1306_SetDevAddr(0x7A); if (ssd1306_Init(&hi2c2) != 0)/* Error_Handler()*/;		ssd1306_Fill(White); ssd1306_UpdateScreen(&hi2c2); ssd1306_SetCursor(0, 0);
+ // ssd1306_InvertColors();
+  ssd1306_WriteString(Test.Radio[Test.selRadio].radioName, Font_7x10, Black);
+  ssd1306_SetCursor(0, 36);
+  float2stri(tempBuff,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+  ssd1306_WriteString("113.56", Font_16x26, Black);
+  ssd1306_UpdateScreen(&hi2c2);
+
+
 
   // Draw rectangle on screen
 //  for (uint8_t i=0; i<28; i++) {
@@ -428,7 +432,7 @@ int main(void)
 
 
   // Copy all data from local screenbuffer to the screen
-  ssd1306_UpdateScreen(&hi2c2);
+
 
   while (1)
   {
@@ -548,6 +552,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+	  asm("nop");
   }
   /* USER CODE END Error_Handler_Debug */
 }

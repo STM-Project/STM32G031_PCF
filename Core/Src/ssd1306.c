@@ -7,14 +7,14 @@ static uint8_t SSD1306_Buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 
 // Screen object
 static SSD1306_t SSD1306;
-
+static uint16_t ssd1306Addr = SSD1306_I2C_ADDR;
 
 //
 //  Send a byte to the command register
 //
 static uint8_t ssd1306_WriteCommand(I2C_HandleTypeDef *hi2c, uint8_t command)
 {
-    return HAL_I2C_Mem_Write(hi2c, SSD1306_I2C_ADDR, 0x00, 1, &command, 1, 10);
+    return HAL_I2C_Mem_Write(hi2c, ssd1306Addr, 0x00, 1, &command, 1, 10);
 }
 
 
@@ -80,6 +80,11 @@ uint8_t ssd1306_Init(I2C_HandleTypeDef *hi2c)
     return 0;
 }
 
+void ssd1306_SetDevAddr(uint16_t addr)
+{
+	ssd1306Addr = addr;
+}
+
 //
 //  Fill the whole screen with the given color
 //
@@ -106,7 +111,7 @@ void ssd1306_UpdateScreen(I2C_HandleTypeDef *hi2c)
         ssd1306_WriteCommand(hi2c, 0x00);
         ssd1306_WriteCommand(hi2c, 0x10);
 
-        HAL_I2C_Mem_Write(hi2c, SSD1306_I2C_ADDR, 0x40, 1, &SSD1306_Buffer[SSD1306_WIDTH * i], SSD1306_WIDTH, 100);
+        HAL_I2C_Mem_Write(hi2c, ssd1306Addr, 0x40, 1, &SSD1306_Buffer[SSD1306_WIDTH * i], SSD1306_WIDTH, 100);
     }
 }
 

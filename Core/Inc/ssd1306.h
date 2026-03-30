@@ -20,7 +20,7 @@
 
 // I2c address
 #ifndef SSD1306_I2C_ADDR
-#define SSD1306_I2C_ADDR        0x78
+#define SSD1306_I2C_ADDR        0x7A
 #endif // SSD1306_I2C_ADDR
 
 // SSD1306 width in pixels
@@ -72,5 +72,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color);
 char ssd1306_WriteString(const char* str, FontDef Font, SSD1306_COLOR color);
 void ssd1306_SetCursor(uint8_t x, uint8_t y);
 void ssd1306_InvertColors(void);
+
+void ssd1306_SetDevAddr(uint16_t addr);
 
 #endif  // _SSD1306_H
