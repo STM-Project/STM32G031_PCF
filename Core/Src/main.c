@@ -357,38 +357,42 @@ int main(void)
   //LOOP_FOR(i,MAX_DISPLAYs){  ssd1306_SetDevAddr(display[i]);  ssd1306_InvertColors();  if(ssd1306_Init()!=0) ERROR_ssd1306();   }   //skrzystaj z SSD1306.Initialized !!!!!!
 
 
+
+  ssd1306_SetDevAddr(display[0]); if(ssd1306_Init()!=0) ERROR_ssd1306();
+  //ssd1306_SetDevAddr(display[1]); if(ssd1306_Init()!=0) ERROR_ssd1306();
+
+
+  ssd1306_InvertColors();
   ssd1306_SetDevAddr(display[0]);
- // ssd1306_InvertColors();
-  if(ssd1306_Init()!=0)
-	  ERROR_ssd1306();
-
-  SSD1306_Txt(  0, 0, Test.Radio[Test.selRadio].radioName, Font_7x10);
+  SSD1306_Txt(  0, 0, Test.Radio[Test.selRadio].radioName, Font_7x10);  //ssd1306_InvertColors();
+  SSD1306_Txt(  0, 25, Test.Radio[Test.selRadio].radioName, Font_7x10); //ssd1306_InvertColors();
   ssd1306_UpdateScreen();
-  HAL_Delay(1500);
-
-  ssd1306_InvertColors();
-
-  ssd1306_Clr();
-  SSD1306_Txt(  0, 15, "1234+5!", Font_7x10);
-  ssd1306_UpdateScreen();
-  HAL_Delay(1500);
-
-  ssd1306_InvertColors();
-
-  ssd1306_Clr();
-  SSD1306_Txt(  0, 15, "Rafa", Font_7x10);
-  ssd1306_UpdateScreen();
-  HAL_Delay(1500);
-
-  ssd1306_InvertColors();
-
-  ssd1306_Clr();
-  SSD1306_Txt(  0, 15, "!@#I|$%^&*()_+yX", Font_7x10);
-  for (uint8_t i=0; i<10; i++) {
-
-  }
-  ssd1306_UpdateScreen();
-  HAL_Delay(1500);
+  //ssd1306_InvertColors();
+//  ssd1306_SetDevAddr(display[1]);
+//  ssd1306_Clr();
+//  SSD1306_Txt(  0, 15, "1234+5!", Font_7x10);  ssd1306_InvertColors();
+//  SSD1306_Txt(  0, 35, "1234+5!", Font_7x10);  ssd1306_InvertColors();
+//  ssd1306_UpdateScreen();
+//  HAL_Delay(2300);
+//
+//
+//
+//  ssd1306_InvertColors();
+//  ssd1306_SetDevAddr(display[0]);
+//  ssd1306_Clr();
+//  SSD1306_Txt(  0, 15, "Rafa", Font_7x10);  ssd1306_InvertColors();
+//  SSD1306_Txt(  0, 35, "Rafa", Font_7x10);  ssd1306_InvertColors();
+//  ssd1306_UpdateScreen();
+//  //ssd1306_InvertColors();
+//  ssd1306_SetDevAddr(display[1]);
+//  ssd1306_Clr();
+//  SSD1306_Txt(  0, 15, "!@#I|$%^&*()_+yX", Font_7x10);  ssd1306_InvertColors();
+//  SSD1306_Txt(  0, 35, "!@#I|$%^&*()_+yX", Font_7x10);  ssd1306_InvertColors();
+//  for (uint8_t i=0; i<10; i++) {
+//
+//  }
+//  ssd1306_UpdateScreen();
+//  HAL_Delay(1500);
 
 
   while(1);

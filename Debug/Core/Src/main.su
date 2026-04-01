@@ -3,6 +3,6 @@
 ../Core/Src/main.c:121:13:DispFreqScreen	40	static
 ../Core/Src/main.c:138:13:RADIO_DispFreq	8	static,ignoring_inline_asm
 ../Core/Src/main.c:263:6:SERVICE_InputPress	40	static
-../Core/Src/main.c:521:6:Error_Handler	0	static,ignoring_inline_asm
-../Core/Src/main.c:471:6:SystemClock_Config	80	static
-../Core/Src/main.c:317:5:main	24	static,ignoring_inline_asm
+../Core/Src/main.c:525:6:Error_Handler	0	static,ignoring_inline_asm
+../Core/Src/main.c:475:6:SystemClock_Config	80	static
+../Core/Src/main.c:317:5:main	32	static,ignoring_inline_asm
