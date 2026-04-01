@@ -179,7 +179,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color)
     }
 
     // Translate font to screenbuffer
-    if(SSD1306.Inverted && SSD1306.CurrentY > 1)
+    if(/*SSD1306.Inverted &&*/ SSD1306.CurrentY > 1)
     {
         for (j = 0; j < Font.FontWidth; j++)
         {
@@ -187,7 +187,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color)
         	ssd1306_DrawPixel(SSD1306.CurrentX + j, (SSD1306.CurrentY - 1), (SSD1306_COLOR) !color);
         }
     }
-    else if(SSD1306.Inverted && SSD1306.CurrentY > 0)
+    else if(/*SSD1306.Inverted &&*/ SSD1306.CurrentY > 0)
     {
         for (j = 0; j < Font.FontWidth; j++)
         {
@@ -212,7 +212,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color)
         }
     }
 
-    if(SSD1306.Inverted && (SSD1306.CurrentY + Font.FontHeight) < (SSD1306_HEIGHT-1))
+    if(/*SSD1306.Inverted &&*/ (SSD1306.CurrentY + Font.FontHeight) < (SSD1306_HEIGHT-1))
     {
         for (j = 0; j < Font.FontWidth; j++)
         {
@@ -220,7 +220,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color)
         	ssd1306_DrawPixel(SSD1306.CurrentX + j, (SSD1306.CurrentY + Font.FontHeight + 1), (SSD1306_COLOR) !color);
         }
     }
-    else if(SSD1306.Inverted && (SSD1306.CurrentY + Font.FontHeight) < (SSD1306_HEIGHT-0))
+    else if(/*SSD1306.Inverted &&*/ (SSD1306.CurrentY + Font.FontHeight) < (SSD1306_HEIGHT-0))
     {
         for (j = 0; j < Font.FontWidth; j++)
         {
@@ -276,6 +276,8 @@ void ssd1306_SetCursor(uint8_t x, uint8_t y)
 
 void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font){
 	ssd1306_SetCursor(x,y);
-	if(SSD1306.Inverted) ssd1306_WriteString(str, Font, White);
-	else				 ssd1306_WriteString(str, Font, Black);
+//	if(SSD1306.Inverted) ssd1306_WriteString(str, Font, Black);
+//	else				 ssd1306_WriteString(str, Font, White);
+
+	ssd1306_WriteString(str, Font, White);
 }
