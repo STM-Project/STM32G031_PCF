@@ -274,23 +274,41 @@ void ssd1306_SetCursor(uint8_t x, uint8_t y)
     SSD1306.CurrentY = y;
 }
 
-void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font, SSD1306_INVERT inv){
+void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font,SSD1306_INVERT inv){
 	ssd1306_SetCursor(x,y);
 	if(Invert==inv) ssd1306_InvertColors();
 	ssd1306_WriteString(str, Font, White);
 	if(Invert==inv) ssd1306_InvertColors();
 }
-void SSD1306_TxtMidd(uint8_t x,uint8_t y,  const char* str,FontDef Font){
-	uint8_t width  = strlen(str);
+void SSD1306_TxtMidd(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv){
+	uint8_t width  = Font.FontWidth*strlen(str);
 	uint8_t height = Font.FontHeight;
 	ssd1306_SetCursor( MIDDLE(x,SSD1306_WIDTH,width), MIDDLE(y,SSD1306_HEIGHT,height) );
+	if(Invert==inv) ssd1306_InvertColors();
 	ssd1306_WriteString(str, Font, White);
+	if(Invert==inv) ssd1306_InvertColors();
 }
-void SSD1306_TxtMiddBK(uint8_t x,uint8_t y,  uint8_t widthBk,uint8_t heightBk,  const char* str,FontDef Font){
-	uint8_t width  = strlen(str);
+void SSD1306_TxtMiddX(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv){
+	uint8_t width  = Font.FontWidth*strlen(str);
+	ssd1306_SetCursor( MIDDLE(x,SSD1306_WIDTH,width), y );
+	if(Invert==inv) ssd1306_InvertColors();
+	ssd1306_WriteString(str, Font, White);
+	if(Invert==inv) ssd1306_InvertColors();
+}
+void SSD1306_TxtMiddY(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv){
+	uint8_t height = Font.FontHeight;
+	ssd1306_SetCursor( x, MIDDLE(y,SSD1306_HEIGHT,height) );
+	if(Invert==inv) ssd1306_InvertColors();
+	ssd1306_WriteString(str, Font, White);
+	if(Invert==inv) ssd1306_InvertColors();
+}
+void SSD1306_TxtMiddBK(uint8_t x,uint8_t y,  uint8_t widthBk,uint8_t heightBk,  const char* str,FontDef Font,SSD1306_INVERT inv){
+	uint8_t width  = Font.FontWidth*strlen(str);
 	uint8_t height = Font.FontHeight;
 	ssd1306_SetCursor( MIDDLE(x,widthBk,width), MIDDLE(y,heightBk,height) );
+	if(Invert==inv) ssd1306_InvertColors();
 	ssd1306_WriteString(str, Font, White);
+	if(Invert==inv) ssd1306_InvertColors();
 }
 void SSD1306_DispBK(uint16_t addrDev,uint8_t invert){
 	  if(invert) ssd1306_InvertColors();
@@ -313,17 +331,22 @@ void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
 	uint8_t i,j;
 	for (i=0; i<width; i++) {
 		for (j=0; j<height; j++) {
-			if( (i!=0&&j!=0) && (i!=width-1&&j!=0) && (i!=0&&j!=height-1) && (i!=width-1&&j!=height-1) ) ssd1306_Pixel(x+i,y+j);
+			if( (i==0&&j==0) || (i==width-1&&j==0) || (i==0&&j==height-1) || (i==width-1&&j==height-1) );
+			else ssd1306_Pixel(x+i,y+j);
 	}}
 }
 
-int EXAMPLE_DrawTxt(uint8_t* addrDispTab)
-{
-	  int ret=0;
-	  ssd1306_SetDevAddr(addrDispTab[0]);	if(ssd1306_Init()!=0) ret|=1;
-	  ssd1306_SetDevAddr(addrDispTab[1]); 	if(ssd1306_Init()!=0) ret|=2;
+int SD1306_Inits(uint8_t* addrDispTab){
+	int ret=0;
+	ssd1306_SetDevAddr(addrDispTab[0]);	if(ssd1306_Init()!=0) ret|=1;
+	ssd1306_SetDevAddr(addrDispTab[1]); if(ssd1306_Init()!=0) ret|=2;
+	return ret;
+}
 
+void EXAMPLE_DrawTxt(uint8_t* addrDispTab)
+{
 	  ssd1306_SetDevAddr(addrDispTab[0]);
+	  ssd1306_Clr();
 	  SSD1306_Txt(0,2,"Radio krakow",Font_7x10,Invert);
 	  SSD1306_Txt(0,25,"*!a@c&",Font_7x10,NoInvert);
 	  SSD1306_Txt(0,45,"?ay|W",Font_7x10,Invert);
@@ -346,6 +369,7 @@ int EXAMPLE_DrawTxt(uint8_t* addrDispTab)
 	  ssd1306_Clr(); ssd1306_InvertColors();
 	  SSD1306_Txt(  0, 15, "Rafa", Font_7x10,Invert);
 	  SSD1306_Txt(  0, 35, "Rafa", Font_7x10,NoInvert);
+	  ssd1306_InvertColors();
 	  SSD1306_roundRect(100,20, 10,10);
 	  ssd1306_UpdateScreen();
 
@@ -354,8 +378,6 @@ int EXAMPLE_DrawTxt(uint8_t* addrDispTab)
 	  ssd1306_Clr();
 	  SSD1306_Txt(  0, 15, "!@#I|$%^&*()_+yX", Font_7x10,NoInvert);
 	  SSD1306_Txt(  0, 35, "!@#I|$%^&*()_+yX", Font_7x10,Invert);
-	  SSD1306_roundRect(100,20, 10,10);
+	  SSD1306_roundRect(100,0, 10,10);
 	  ssd1306_UpdateScreen();
-
-	  return ret;
 }

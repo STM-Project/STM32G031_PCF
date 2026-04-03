@@ -46,6 +46,7 @@ void PCF8575_Init	(void);
 int  PCF8575_Read	(uint16_t devAddr);
 int  PCF8575_Write 	(uint16_t devAddr, uint16_t data);
 int  PCF8575_SetVAl	(uint16_t data1, uint16_t data2);
+void PCF8575_Test	(void);
 
 uint8_t SSD1306_WriteCommand (uint16_t devAddr, uint8_t command);
 uint8_t SSD1306_WriteData	 (uint16_t devAddr, uint8_t *data, uint16_t size);

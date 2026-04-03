@@ -82,8 +82,10 @@ void ssd1306_InvertColors(void);
 void ssd1306_SetDevAddr(uint16_t addr);
 void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font, SSD1306_INVERT inv);
 void ssd1306_Pixel(uint8_t x, uint8_t y);
-void SSD1306_TxtMiddBK(uint8_t x,uint8_t y,  uint8_t widthBk,uint8_t heightBk,  const char* str,FontDef Font);
-void SSD1306_TxtMidd(uint8_t x,uint8_t y,  const char* str,FontDef Font);
+void SSD1306_TxtMiddBK(uint8_t x,uint8_t y,  uint8_t widthBk,uint8_t heightBk,  const char* str,FontDef Font,SSD1306_INVERT inv);
+void SSD1306_TxtMidd(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv);
+void SSD1306_TxtMiddX(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv);
+void SSD1306_TxtMiddY(uint8_t x,uint8_t y,  const char* str,FontDef Font,SSD1306_INVERT inv);
 void SSD1306_DispBK(uint16_t addrDev,uint8_t invert);
 
 uint8_t SSD1306_diffY(FontDef Font1,FontDef Font2);
@@ -94,7 +96,8 @@ uint8_t SSD1306_posY(void);
 
 void SSD1306_rect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
 void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
+int SD1306_Inits(uint8_t* addrDispTab);
 
-int EXAMPLE_DrawTxt(uint8_t* addrDispTab);
+void EXAMPLE_DrawTxt(uint8_t* addrDispTab);
 
 #endif  // _SSD1306_H

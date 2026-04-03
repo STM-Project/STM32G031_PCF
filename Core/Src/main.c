@@ -70,7 +70,7 @@ typedef struct{
 static INPUT_PIN port[KEYS_MAX]={{KEY_MINUS_FREQ},{KEY_PLUS_FREQ},{KEY_MINUS_TUNN},{KEY_PLUS_TUNN}};
 static STRUCT_VISUALPARAM Test;
 static uint16_t toogleVar[3]={0x01};
-static uint8_t display[MAX_DISPLAYs]={0x7A,0x78};
+static uint8_t display[MAX_DISPLAYs]={0x78,0x7A};
 static char mainBuff[SIZE_MAIN_BUFF]={0};
 
 /* USER CODE END PD */
@@ -90,10 +90,26 @@ static char mainBuff[SIZE_MAIN_BUFF]={0};
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+static void ERROR_pcf8575(void){
+	SSD1306_DispBK(display[0],NoInvert);
+	SSD1306_TxtMidd(0,0,"ERROR",Font_16x26,NoInvert);
+	SSD1306_TxtMiddX(0,SSD1306_posY()+Font_16x26.FontHeight+3," PCF8575 ",Font_7x10,NoInvert);
+	ssd1306_UpdateScreen();
+}
+static void ERROR_ssd1306(void){
+	;
+}
+
+static void RADIO_InitScreen(void){
+	SSD1306_DispBK(display[0],NoInvert);
+	SSD1306_Txt(0,0,"Radio",Font_16x26,NoInvert);	SSD1306_Txt(SSD1306_posX()+5,0,"FM",Font_16x26,NoInvert);
+	SSD1306_TxtMiddX(0,SSD1306_posY()+Font_16x26.FontHeight+6,"Synteza",Font_7x10,NoInvert);
+	SSD1306_TxtMiddX(0,SSD1306_posY()+Font_7x10.FontHeight+3,"czestotliwosci",Font_7x10,NoInvert);
+	ssd1306_UpdateScreen();
+}
+
 static int RADIO_SetFreq(int nr){ 	/* PCF8575_Init(); */
-	INIT(temp1,PCF8575_Write(0,Test.Radio[nr].freqStep));
-	INIT(temp2,PCF8575_Write(1,Test.Radio[nr].freqDiv));
-	if(EQUAL2_OR(-1,temp1,temp2)) return 0; else return 1;
+	return PCF8575_SetVAl( Test.Radio[nr].freqStep, Test.Radio[nr].freqDiv);
 }
 
 static void RADIO_CalcFreqDiv(int nr){
@@ -103,14 +119,14 @@ static void RADIO_CalcFreq(int nr){
 	Test.Radio[nr].freq    = INTER_F1 + DIV_FREQ + DIV_ACT*STEP_FREQ*((Test.Radio[nr].freqDiv+1)/(Test.Radio[nr].freqStep+1));
 }
 
-
-
-static void ERROR_pcf8575(void){
-	SSD1306_DispBK(display[0],Invert);
-	SSD1306_TxtMidd(0,0,"ERROR PCF",Font_16x26);
-}
-static void ERROR_ssd1306(void){
-	;
+static int RADIO_CorrectFreqForSelChannel(uint8_t nrChannel,uint16_t newFreqDiv){
+	Test.selRadio = nrChannel;
+	int i = Test.selRadio;
+	Test.Radio[i].freqDiv = newFreqDiv;
+	RADIO_CalcFreq(i);
+	if(PCF8575_SetVAl( Test.Radio[i].freqStep, Test.Radio[i].freqDiv ))
+		return 1;
+	return 0;
 }
 
 static char* GetFreqToBuff(uint16_t idx){
@@ -124,8 +140,7 @@ static void DispFreqScreen(uint8_t nrDispl){
 	SSD1306_DispBK(nrDispl,NoInvert);
 	SSD1306_Txt(0,0, Test.Radio[Test.selRadio].radioName, Font_7x10,NoInvert);
 	SSD1306_Txt(0,36,GetFreqToBuff(0), Font_16x26,NoInvert);
-	SSD1306_Txt( SSD1306_posX()+10, 36+SSD1306_diffY(Font_16x26,Font_7x10), "MHz", Font_7x10,NoInvert);
-	SSD1306_roundRect(100,0, 10,10);
+	SSD1306_Txt( SSD1306_posX()+10, MIDDLE(36,Font_16x26.FontHeight,Font_7x10.FontHeight), "MHz", Font_7x10,NoInvert);
 	ssd1306_UpdateScreen();
 }
 
@@ -202,13 +217,15 @@ static void SERVICE_1press_0111(void){
 }
 
 static void SERVICE_2press_1100(void){
-
+	RADIO_InitScreen();
+	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_2press_1010(void){
 
 }
 static void SERVICE_2press_0110(void){
-
+	EXAMPLE_DrawTxt(display);
+	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_2press_1001(void){
 
@@ -217,25 +234,20 @@ static void SERVICE_2press_0101(void){
 
 }
 static void SERVICE_2press_0011(void){
-	Test.selRadio=9;
-
-	int i = Test.selRadio;
-
-	Test.Radio[i].freqDiv = (0x2<<8)|0x1E;
-
-	RADIO_CalcFreq(i);
-	if(PCF8575_SetVAl( Test.Radio[i].freqStep, Test.Radio[i].freqDiv ))  //00000010  00011110 Radio Maryja
-		PCF8575_Error();
-
+	if(RADIO_CorrectFreqForSelChannel(9, (0x2<<8)|0x1E))  ERROR_pcf8575();		/* Correct frequency for Radio Maryja */
 	DispFreqScreen(display[0]);
 	WAIT_FOR_ALL_RELEASE;
 }
 
 static void SERVICE_3press_1000(void){
-
+	ERROR_pcf8575();
+	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_3press_0100(void){
-
+	ssd1306_InvertColors();
+	ssd1306_Clr();
+	DispFreqScreen(display[0]);
+	HAL_Delay(500);
 }
 static void SERVICE_3press_0010(void){
 
@@ -245,7 +257,7 @@ static void SERVICE_3press_0001(void){
 }
 
 static void SERVICE_4press_0000(void){
-	if(TOOGLE(toogleVar[0])){  if(PCF8575_SetVAl(0xFFFF,0xFFFF)) PCF8575_Error(); }
+	if(TOOGLE(toogleVar[0])){  if(PCF8575_SetVAl(0xFFFF,0xFFFF)) ERROR_pcf8575(); }
 	else 					{  RADIO_DispFreq();								  }
 	WAIT_FOR_ALL_RELEASE;
 }
@@ -330,51 +342,18 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(500);
+  HAL_Delay(200);
+  if(SD1306_Inits(display)) ERROR_ssd1306();
+  RADIO_InitScreen();
+
   VisualParam_LCD_Reset();
- // MX_GPIO_ChangeConfigSWDpin(6000);
+  MX_GPIO_ChangeConfigSWDpin(6000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  // Init lcd using one of the stm32HAL i2c typedefs
-
-  //HAL_Delay(2000);
-
-
-  if(EXAMPLE_DrawTxt(display)) ERROR_ssd1306();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  while(1);
-
-
-
-
   DispFreqScreen(display[0]);
-
-
-
-
-
-
-
-
 
   while (1)
   {
@@ -382,54 +361,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-//	  HAL_Delay(1000);
-//	  PCF8575_Write(0,0xaa55);
-//	  HAL_Delay(1000);
-//	  PCF8575_Write(0,0x55aa);
-//	  HAL_Delay(1000);
-//	  PCF8575_Write(0,0xaa55);
-//	  HAL_Delay(1000);
-//	  PCF8575_Write(0,0x55aa);
-//	  HAL_Delay(1000);
-//	  PCF8575_Write(0,0xaa55);
-
-
-
-
-
-
 	  SERVICE_InputPress();
-	  //HAL_Delay(20);
-
-
-//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_13));
-//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_14));
-
-//	  if(INPUT_ChekState(port,KEYS_MAX));
-//
-//	  if(MX_GPIO_IsPress(KEY_PLUS_FREQ)){
-//		  INCR_WRAP(Test.selRadio,1,0,MAX_RADIO_CHANNEL);
-//		  RADIO_DispFreq();
-//		  MX_GPIO_WaitForRelease(KEY_PLUS_FREQ);
-//	  }
-//	  if(MX_GPIO_IsPress(KEY_MINUS_FREQ)){
-//		  DECR_WRAP(Test.selRadio,1,0,MAX_RADIO_CHANNEL);
-//		  RADIO_DispFreq();
-//		  MX_GPIO_WaitForRelease(KEY_MINUS_FREQ);
-//	  }
-
-//
-//	  if(MX_GPIO_IsPress(KEY_PLUS_TUNN)){
-//		  INCR_WRAP(Test.selRadio,1,0,MAX_RADIO_CHANNEL);
-//		  FUNC_TunningFreq(0);
-//		  MX_GPIO_WaitForRelease(KEY_PLUS_TUNN);
-//	  }
-//	  if(MX_GPIO_IsPress(KEY_MINUS_TUNN)){
-//		  DECR_WRAP(Test.selRadio,1,0,MAX_RADIO_CHANNEL);
-//		  FUNC_TunningFreq(1);
-//		  MX_GPIO_WaitForRelease(KEY_MINUS_TUNN);
-//	  }
-
   }
   /* USER CODE END 3 */
 }

@@ -156,4 +156,17 @@ uint8_t SSD1306_WriteData(uint16_t devAddr, uint8_t *data, uint16_t size){
     return HAL_I2C_Mem_Write(&hi2c2, devAddr, 0x40, 1, data, size, 100);
 }
 
+void PCF8575_Test(void){
+	HAL_Delay(1000);
+	PCF8575_Write(0,0xaa55);
+	HAL_Delay(1000);
+	PCF8575_Write(0,0x55aa);
+	HAL_Delay(1000);
+	PCF8575_Write(0,0xaa55);
+	HAL_Delay(1000);
+	PCF8575_Write(0,0x55aa);
+	HAL_Delay(1000);
+	PCF8575_Write(0,0xaa55);
+}
+
 /* USER CODE END 1 */
