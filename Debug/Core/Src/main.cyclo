@@ -1,8 +1,0 @@
-../Core/Src/main.c:96:13:RADIO_CalcFreqDiv	1
-../Core/Src/main.c:90:12:RADIO_SetFreq	2
-../Core/Src/main.c:121:13:DispFreqScreen	4
-../Core/Src/main.c:138:13:RADIO_DispFreq	2
-../Core/Src/main.c:263:6:SERVICE_InputPress	23
-../Core/Src/main.c:548:6:Error_Handler	1
-../Core/Src/main.c:498:6:SystemClock_Config	2
-../Core/Src/main.c:317:5:main	11

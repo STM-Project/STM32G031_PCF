@@ -1,9 +1,0 @@
-../Core/Src/gpio.c:44:6:MX_GPIO_Init	48	static
-../Core/Src/gpio.c:69:6:MX_GPIO_ChangeConfigSWDpin	32	static
-../Core/Src/gpio.c:97:5:MX_GPIO_IsPress	16	static
-../Core/Src/gpio.c:113:5:MX_GPIO_IsRelease	8	static
-../Core/Src/gpio.c:117:6:MX_GPIO_WaitForRelease	16	static
-../Core/Src/gpio.c:122:5:INPUT_ChekState	40	dynamic
-../Core/Src/gpio.c:136:13:INPUT_GetPressPin	16	static
-../Core/Src/gpio.c:175:5:INPUT_IsAllRelease	16	static
-../Core/Src/gpio.c:179:5:INPUT_IsAnyPress	16	static
