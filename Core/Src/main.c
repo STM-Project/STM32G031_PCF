@@ -47,6 +47,8 @@
 #define WAIT_FOR_ALL_RELEASE	while(INPUT_IsAnyPress(port,KEYS_MAX))
 #define MAX_DISPLAYs			2
 
+#define SIZE_MAIN_BUFF	 100
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -69,6 +71,7 @@ static INPUT_PIN port[KEYS_MAX]={{KEY_MINUS_FREQ},{KEY_PLUS_FREQ},{KEY_MINUS_TUN
 static STRUCT_VISUALPARAM Test;
 static uint16_t toogleVar[3]={0x01};
 static uint8_t display[MAX_DISPLAYs]={0x7A,0x78};
+static char mainBuff[SIZE_MAIN_BUFF]={0};
 
 /* USER CODE END PD */
 
@@ -100,40 +103,31 @@ static void RADIO_CalcFreq(int nr){
 	Test.Radio[nr].freq    = INTER_F1 + DIV_FREQ + DIV_ACT*STEP_FREQ*((Test.Radio[nr].freqDiv+1)/(Test.Radio[nr].freqStep+1));
 }
 
-char tempBuff[40];
-char tempBuff2[40];
 
 
 static void ERROR_pcf8575(void){
-	//..display error pcf !!!!!
-	asm("nop");
+	SSD1306_DispBK(display[0],Invert);
+	SSD1306_TxtMidd(0,0,"ERROR PCF",Font_16x26);
 }
 static void ERROR_ssd1306(void){
-	asm("nop");
+	;
 }
 
-static void GetFreqToBuff(char *buff){
-	*buff=' ';
-	if(Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs < 100.00) 	float2stri(buff+1,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
-	else																			float2stri(buff,  Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+static char* GetFreqToBuff(uint16_t idx){
+	mainBuff[idx]=' ';
+	if(Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs < 100.00) 	float2stri(mainBuff+idx+1,Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+	else																			float2stri(mainBuff+idx,  Test.Radio[Test.selRadio].freq+Test.Radio[Test.selRadio].freqOffs,2);
+	return mainBuff+idx;
 }
 
 static void DispFreqScreen(uint8_t nrDispl){
-	ssd1306_SetDevAddr(nrDispl);  ssd1306_Clr();	SSD1306_Txt(  0, 0, Test.Radio[Test.selRadio].radioName, Font_7x10);
-	GetFreqToBuff(tempBuff);						SSD1306_Txt(  0,36, tempBuff, 							 Font_16x26);
-	//ssd1306_InvertColors();
-	SSD1306_Txt(105,45, "MHz", 								 Font_7x10);
-	//ssd1306_InvertColors();
-
-	  for (uint8_t i=0; i<10; i++) {
-	      for (uint8_t j=0; j<10; j++) {
-	    	  ssd1306_Pixel(100+i, 0+j);
-	      }
-	  }
-
+	SSD1306_DispBK(nrDispl,NoInvert);
+	SSD1306_Txt(0,0, Test.Radio[Test.selRadio].radioName, Font_7x10,NoInvert);
+	SSD1306_Txt(0,36,GetFreqToBuff(0), Font_16x26,NoInvert);
+	SSD1306_Txt( SSD1306_posX()+10, 36+SSD1306_diffY(Font_16x26,Font_7x10), "MHz", Font_7x10,NoInvert);
+	SSD1306_roundRect(100,0, 10,10);
 	ssd1306_UpdateScreen();
 }
-
 
 static void RADIO_DispFreq(void){
 	RADIO_CalcFreqDiv(Test.selRadio);
@@ -147,10 +141,6 @@ static void FUNC_TunningFreq(int k){ switch(k){
   case  1: DECR( Test.Radio[Test.selRadio].freqOffs, 0.01,-1.00 ); break; }
 	RADIO_DispFreq();
 }
-
-
-
-
 
 static void VisualParam_LCD_Reset(void)
 {
@@ -353,69 +343,22 @@ int main(void)
   //HAL_Delay(2000);
 
 
-
-  //LOOP_FOR(i,MAX_DISPLAYs){  ssd1306_SetDevAddr(display[i]);  ssd1306_InvertColors();  if(ssd1306_Init()!=0) ERROR_ssd1306();   }   //skrzystaj z SSD1306.Initialized !!!!!!
-
-
-
-  ssd1306_SetDevAddr(display[0]);	if(ssd1306_Init()!=0) ERROR_ssd1306();
-  ssd1306_SetDevAddr(display[1]); 	if(ssd1306_Init()!=0) ERROR_ssd1306();
-
-
-  ssd1306_InvertColors();  //ssd1306_Clr();
-  ssd1306_SetDevAddr(display[0]);
-  SSD1306_Txt(  0, 2, "Radio krakow"/*Test.Radio[Test.selRadio].radioName*/, Font_7x10);  ssd1306_InvertColors();
-  SSD1306_Txt(  0, 25, "123|yW"/*Test.Radio[Test.selRadio].radioName*/, Font_7x10); ssd1306_InvertColors();
-  SSD1306_Txt(  0, 45, "123|yW"/*Test.Radio[Test.selRadio].radioName*/, Font_7x10); ssd1306_InvertColors();
-  SSD1306_Txt(  70, 45, "123|yW"/*Test.Radio[Test.selRadio].radioName*/, Font_7x10); ssd1306_InvertColors();
-
-  for (uint8_t i=0; i<10; i++) {
-      for (uint8_t j=0; j<10; j++) {
-    	  ssd1306_Pixel(100+i, 0+j);
-      }
-  }
-  ssd1306_UpdateScreen();
-
-  //ssd1306_InvertColors();
-  ssd1306_SetDevAddr(display[1]);
-  ssd1306_Clr();
-  SSD1306_Txt(  0, 15, "1234+5!", Font_7x10);  ssd1306_InvertColors();
-  SSD1306_Txt(  0, 35, "1234+5!", Font_7x10);  ssd1306_InvertColors();
-  for (uint8_t i=0; i<10; i++) {
-      for (uint8_t j=0; j<10; j++) {
-    	  ssd1306_Pixel(100+i, 0+j);
-      }
-  }
-  ssd1306_UpdateScreen();
-
-
-
-
-  HAL_Delay(2300);
+  if(EXAMPLE_DrawTxt(display)) ERROR_ssd1306();
 
 
 
 
 
-  //ssd1306_InvertColors();
-  ssd1306_SetDevAddr(display[0]);
-  ssd1306_Clr(); ssd1306_InvertColors();
-  SSD1306_Txt(  0, 15, "Rafa", Font_7x10);  ssd1306_InvertColors();
-  SSD1306_Txt(  0, 35, "Rafa", Font_7x10);
-  ssd1306_UpdateScreen();
-  //ssd1306_InvertColors();
-  ssd1306_SetDevAddr(display[1]);
-  ssd1306_InvertColors();
-  ssd1306_Clr();
-  SSD1306_Txt(  0, 15, "!@#I|$%^&*()_+yX", Font_7x10);  ssd1306_InvertColors();
-  SSD1306_Txt(  0, 35, "!@#I|$%^&*()_+yX", Font_7x10);  ssd1306_InvertColors();
-  for (uint8_t i=0; i<10; i++) {
-      for (uint8_t j=0; j<10; j++) {
-    	  ssd1306_Pixel(100+i, 0+j);
-      }
-  }
-  ssd1306_UpdateScreen();
-  HAL_Delay(1500);
+
+
+
+
+
+
+
+
+
+
 
 
   while(1);
