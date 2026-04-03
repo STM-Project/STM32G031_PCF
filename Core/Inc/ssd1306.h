@@ -50,6 +50,11 @@ typedef enum {
     White = 0x01,   // Pixel is set. Color depends on LCD
 } SSD1306_COLOR;
 
+typedef enum {
+    NoInvert = 0,
+    Invert = 1,
+} SSD1306_INVERT;
+
 //
 //  Struct to store transformations
 //
@@ -75,7 +80,21 @@ void ssd1306_SetCursor(uint8_t x, uint8_t y);
 void ssd1306_InvertColors(void);
 
 void ssd1306_SetDevAddr(uint16_t addr);
-void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font);
+void SSD1306_Txt(uint8_t x, uint8_t y, const char* str, FontDef Font, SSD1306_INVERT inv);
 void ssd1306_Pixel(uint8_t x, uint8_t y);
+void SSD1306_TxtMiddBK(uint8_t x,uint8_t y,  uint8_t widthBk,uint8_t heightBk,  const char* str,FontDef Font);
+void SSD1306_TxtMidd(uint8_t x,uint8_t y,  const char* str,FontDef Font);
+void SSD1306_DispBK(uint16_t addrDev,uint8_t invert);
+
+uint8_t SSD1306_diffY(FontDef Font1,FontDef Font2);
+uint8_t SSD1306_diffX(FontDef Font1,FontDef Font2);
+
+uint8_t SSD1306_posX(void);
+uint8_t SSD1306_posY(void);
+
+void SSD1306_rect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
+void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
+
+int EXAMPLE_DrawTxt(uint8_t* addrDispTab);
 
 #endif  // _SSD1306_H
