@@ -8,6 +8,7 @@
 #include "string_oper.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #define SIZE_STRBUFF	50
