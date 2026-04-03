@@ -319,8 +319,9 @@ void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
 
 int EXAMPLE_DrawTxt(uint8_t* addrDispTab)
 {
-	  ssd1306_SetDevAddr(addrDispTab[0]);	if(ssd1306_Init()!=0) return 1;
-	  ssd1306_SetDevAddr(addrDispTab[1]); 	if(ssd1306_Init()!=0) return 2;
+	  int ret=0;
+	  ssd1306_SetDevAddr(addrDispTab[0]);	if(ssd1306_Init()!=0) ret|=1;
+	  ssd1306_SetDevAddr(addrDispTab[1]); 	if(ssd1306_Init()!=0) ret|=2;
 
 	  ssd1306_SetDevAddr(addrDispTab[0]);
 	  SSD1306_Txt(0,2,"Radio krakow",Font_7x10,Invert);
@@ -356,5 +357,5 @@ int EXAMPLE_DrawTxt(uint8_t* addrDispTab)
 	  SSD1306_roundRect(100,20, 10,10);
 	  ssd1306_UpdateScreen();
 
-	  return 0;
+	  return ret;
 }
