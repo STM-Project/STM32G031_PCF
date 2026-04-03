@@ -47,6 +47,9 @@ extern "C" {
 #define IS_RANGE(val,min,max) 		(((val)>=(min))&&((val)<=(max)))
 #define TOOGLE(x) 					((x)=1-(x))
 
+#define MIDDLE(startPos,widthBk,width)		((startPos)+((widthBk)-(width))/2)
+#define CONDITION(condition,val1,val2)		((condition) ? (val1) : (val2))
+
 #define PRESSED_NONE	0
 #define PRESSED_ONE		1
 #define PRESSED_TWO		2
