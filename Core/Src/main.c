@@ -116,7 +116,7 @@ static void RADIO_CalcFreqDiv(int nr){
 	Test.Radio[nr].freqDiv = ((double)Test.Radio[nr].freqStep+1) * (((Test.Radio[nr].freq+Test.Radio[nr].freqOffs)-INTER_F1-DIV_FREQ)/(DIV_ACT*STEP_FREQ)) - 1;
 }
 static void RADIO_CalcFreq(int nr){
-	Test.Radio[nr].freq    = INTER_F1 + DIV_FREQ + DIV_ACT*STEP_FREQ*((Test.Radio[nr].freqDiv+1)/(Test.Radio[nr].freqStep+1));
+	Test.Radio[nr].freq    = INTER_F1 + DIV_FREQ + DIV_ACT*STEP_FREQ*(((double)Test.Radio[nr].freqDiv+1)/((double)Test.Radio[nr].freqStep+1));
 }
 
 static int RADIO_CorrectFreqForSelChannel(uint8_t nrChannel,uint16_t newFreqDiv){
