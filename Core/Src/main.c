@@ -70,7 +70,7 @@ typedef struct{
 static INPUT_PIN port[KEYS_MAX]={{KEY_MINUS_FREQ},{KEY_PLUS_FREQ},{KEY_MINUS_TUNN},{KEY_PLUS_TUNN}};
 static STRUCT_VISUALPARAM Test;
 static uint16_t toogleVar[3]={0x01};
-static uint8_t display[MAX_DISPLAYs]={0x7A,0x7A};
+static uint8_t display[MAX_DISPLAYs]={0x78,0x7A};
 static char mainBuff[SIZE_MAIN_BUFF]={0};
 
 /* USER CODE END PD */
@@ -146,12 +146,6 @@ static void DispFreqScreen(uint8_t nrDispl)
 	SSD1306_DispBK(nrDispl,NoInvert);
 	SSD1306_Txt(0,0, Test.Radio[Test.selRadio].radioName, Font_7x10,NoInvert);
 
-
-
-
-	toogleVar[1]=2;
-
-
 	if(toogleVar[1])
 	{
 		if(1==toogleVar[1]) value=Test.Radio[Test.selRadio].freqStep;
@@ -164,11 +158,6 @@ static void DispFreqScreen(uint8_t nrDispl)
 			else   				   SSD1306_roundFrame(8*i,rectPosY,sizeRect,sizeRect);
 		}
 	}
-
-
-
-
-
 	SSD1306_Txt(0,37,GetFreqToBuff(0), Font_16x26,NoInvert);
 	SSD1306_Txt( SSD1306_posX()+10, MIDDLE(37,Font_16x26.FontHeight,Font_7x10.FontHeight), "MHz", Font_7x10,NoInvert);
 	ssd1306_UpdateScreen();
@@ -381,7 +370,7 @@ int main(void)
   RADIO_InitScreen();
 
   VisualParam_LCD_Reset();
- // MX_GPIO_ChangeConfigSWDpin(6000);
+  MX_GPIO_ChangeConfigSWDpin(6000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
