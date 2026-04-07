@@ -50,6 +50,10 @@ extern "C" {
 #define MIDDLE(startPos,widthBk,width)		((startPos)+((widthBk)-(width))/2)
 #define CONDITION(condition,val1,val2)		((condition) ? (val1) : (val2))
 
+#define SET_bit(allBits,bitNr)	((allBits) |=   1<<(bitNr))
+#define RST_bit(allBits,bitNr)	((allBits) &= ~(1<<(bitNr)))
+#define CHECK_bit(allBits,bitNr) (((allBits)>>((bitNr)>31?31:(bitNr))) & 0x00000001)
+
 #define PRESSED_NONE	0
 #define PRESSED_ONE		1
 #define PRESSED_TWO		2
