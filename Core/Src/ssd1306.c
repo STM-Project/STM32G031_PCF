@@ -327,12 +327,28 @@ void SSD1306_rect(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
 			ssd1306_Pixel(x+i,y+j);
 	}}
 }
+void SSD1306_frame(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
+	for (uint8_t i=0; i<width; i++) {
+		for (uint8_t j=0; j<height; j++) {
+			if(i==0 || i==width-1 || j==0 || j==height-1)  ssd1306_Pixel(x+i,y+j);
+	}}
+}
 void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
 	uint8_t i,j;
 	for (i=0; i<width; i++) {
 		for (j=0; j<height; j++) {
 			if( (i==0&&j==0) || (i==width-1&&j==0) || (i==0&&j==height-1) || (i==width-1&&j==height-1) );
 			else ssd1306_Pixel(x+i,y+j);
+	}}
+}
+void SSD1306_roundFrame(uint8_t x,uint8_t y, uint8_t width,uint8_t height){
+	uint8_t i,j;
+	for (i=0; i<width; i++) {
+		for (j=0; j<height; j++) {
+			if(i==0 || i==width-1 || j==0 || j==height-1){
+				if( (i==0&&j==0) || (i==width-1&&j==0) || (i==0&&j==height-1) || (i==width-1&&j==height-1) );
+				else ssd1306_Pixel(x+i,y+j);
+			}
 	}}
 }
 
