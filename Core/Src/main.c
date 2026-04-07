@@ -70,7 +70,7 @@ typedef struct{
 static INPUT_PIN port[KEYS_MAX]={{KEY_MINUS_FREQ},{KEY_PLUS_FREQ},{KEY_MINUS_TUNN},{KEY_PLUS_TUNN}};
 static STRUCT_VISUALPARAM Test;
 static uint16_t toogleVar[3]={0x01};
-static uint8_t display[MAX_DISPLAYs]={0x78,0x7A};
+static uint8_t display[MAX_DISPLAYs]={0x7A,0x7A};
 static char mainBuff[SIZE_MAIN_BUFF]={0};
 
 /* USER CODE END PD */
@@ -136,11 +136,41 @@ static char* GetFreqToBuff(uint16_t idx){
 	return mainBuff+idx;
 }
 
-static void DispFreqScreen(uint8_t nrDispl){
+static void DispFreqScreen(uint8_t nrDispl)
+{
+	uint8_t sizeRect=7;
+	uint8_t rectPosY=24;
+	uint8_t descrPosY=rectPosY-Font_7x10.FontHeight-1;
+	uint16_t value;
+
 	SSD1306_DispBK(nrDispl,NoInvert);
 	SSD1306_Txt(0,0, Test.Radio[Test.selRadio].radioName, Font_7x10,NoInvert);
-	SSD1306_Txt(0,36,GetFreqToBuff(0), Font_16x26,NoInvert);
-	SSD1306_Txt( SSD1306_posX()+10, MIDDLE(36,Font_16x26.FontHeight,Font_7x10.FontHeight), "MHz", Font_7x10,NoInvert);
+
+
+
+
+	toogleVar[1]=2;
+
+
+	if(toogleVar[1])
+	{
+		if(1==toogleVar[1]) value=Test.Radio[Test.selRadio].freqStep;
+		else				value=Test.Radio[Test.selRadio].freqDiv;
+
+		SSD1306_Txt(0, descrPosY, HexToAscii(value,	  0) /*Int2Str(val_1,Space,3,Sign_none)*/, Font_7x10,NoInvert);
+		SSD1306_Txt(64,descrPosY, HexToAscii(value>>8,0) /*Int2Str(val_2,Space,3,Sign_none)*/, Font_7x10,NoInvert);
+		LOOP_FOR(i,16){
+			if(CHECK_bit(value,i)) SSD1306_roundRect (8*i,rectPosY,sizeRect,sizeRect);
+			else   				   SSD1306_roundFrame(8*i,rectPosY,sizeRect,sizeRect);
+		}
+	}
+
+
+
+
+
+	SSD1306_Txt(0,37,GetFreqToBuff(0), Font_16x26,NoInvert);
+	SSD1306_Txt( SSD1306_posX()+10, MIDDLE(37,Font_16x26.FontHeight,Font_7x10.FontHeight), "MHz", Font_7x10,NoInvert);
 	ssd1306_UpdateScreen();
 }
 
@@ -228,10 +258,14 @@ static void SERVICE_2press_0110(void){
 	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_2press_1001(void){
-
+	INCR_WRAP(toogleVar[1],1,0,2);
+	RADIO_DispFreq();
+	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_2press_0101(void){
-
+	if(toogleVar[1]){  INCR_WRAP(toogleVar[1],1,1,2);  }
+	RADIO_DispFreq();
+	WAIT_FOR_ALL_RELEASE;
 }
 static void SERVICE_2press_0011(void){
 	if(RADIO_CorrectFreqForSelChannel(9, (0x2<<8)|0x1E))  ERROR_pcf8575();		/* Correct frequency for Radio Maryja */
@@ -347,7 +381,7 @@ int main(void)
   RADIO_InitScreen();
 
   VisualParam_LCD_Reset();
-  MX_GPIO_ChangeConfigSWDpin(6000);
+ // MX_GPIO_ChangeConfigSWDpin(6000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
