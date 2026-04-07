@@ -95,7 +95,9 @@ uint8_t SSD1306_posX(void);
 uint8_t SSD1306_posY(void);
 
 void SSD1306_rect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
+void SSD1306_frame(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
 void SSD1306_roundRect(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
+void SSD1306_roundFrame(uint8_t x,uint8_t y, uint8_t width,uint8_t height);
 int SD1306_Inits(uint8_t* addrDispTab);
 
 void EXAMPLE_DrawTxt(uint8_t* addrDispTab);
