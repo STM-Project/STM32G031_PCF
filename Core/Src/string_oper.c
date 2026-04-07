@@ -6,15 +6,39 @@
  */
 
 #include "string_oper.h"
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 #define SIZE_STRBUFF	50
+#define SIZE_HEXBUFF	50
 
 static int idx=0;
 static char strBuff[SIZE_STRBUFF]={0};
+static char hexBuff[SIZE_HEXBUFF]={0};
+
+static unsigned char hex_to_ASCII (unsigned char val)
+{
+	unsigned char hex=val&0xF;
+
+    if(hex==0x01) return '1';
+    else if(hex==0x02) return '2';
+	else if(hex==0x03) return '3';
+	else if(hex==0x04) return '4';
+	else if(hex==0x05) return '5';
+	else if(hex==0x06) return '6';
+	else if(hex==0x07) return '7';
+	else if(hex==0x08) return '8';
+	else if(hex==0x09) return '9';
+	else if(hex==0x00) return '0';
+	else if(hex==0x0A) return 'A';
+	else if(hex==0x0B) return 'B';
+	else if(hex==0x0C) return 'C';
+	else if(hex==0x0D) return 'D';
+	else if(hex==0x0E) return 'E';
+	else if(hex==0x0F) return 'F';
+	return 0;
+}
 
 char* Int2Str(int value, char freeSign, int maxDigits, int plusMinus)
 {
@@ -220,4 +244,21 @@ void float2stri(char *buffer, float value, unsigned int dec_digits)
 		*output++ = '-';
 	}
 	*output = 0;
+}
+
+char* HexToAscii(uint8_t val,int mem){
+	int i=mem;
+	hexBuff[i++]=hex_to_ASCII(val>>4);
+	hexBuff[i++]=hex_to_ASCII(val);
+	hexBuff[i++]=0;
+	return &hexBuff[mem];
+}
+char* Hex2ToAscii(uint16_t val,int mem){
+	int i=mem;
+	hexBuff[i++]=hex_to_ASCII(val>>12);
+	hexBuff[i++]=hex_to_ASCII(val>>8);
+	hexBuff[i++]=hex_to_ASCII(val>>4);
+	hexBuff[i++]=hex_to_ASCII(val);
+	hexBuff[i++]=0;
+	return &hexBuff[mem];
 }
